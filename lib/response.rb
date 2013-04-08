@@ -25,7 +25,7 @@ class WeaselDiesel
     #
     # @return [Array<WeaselDiesel::Response::Element, WeaselDiesel::Response::Array>]
     def nodes
-      (elements + arrays).inject({}){|hash,item| hash.merge item}
+      elements + arrays
     end
 
     # Shortcut to automatically create a node of array type.
@@ -338,13 +338,10 @@ class WeaselDiesel
       #
       # @return [Hash] the element attributes formated in a hash
       def to_hash
-        attrs = {}
-        attributes.each{ |attr| attrs[attr.name] = attr.type }
-        elements.each{ |el| attrs[el.name] = el.to_hash } if elements
-        if self.class == Vector
-          name ? {name => [attrs]} : [attrs]
-        else
-          name ? {name => attrs} : attrs
+        Hash.new.tap do |attrs|
+          attributes.each{ |attribute| attrs[attribute.name] = attribute.type }
+          vectors.each   { |vector|    attrs[vector.name]    = vector.to_hash }  if vectors
+          elements.each  { |element|   attrs[element.name]   = element.to_hash } if elements
         end
       end
 
